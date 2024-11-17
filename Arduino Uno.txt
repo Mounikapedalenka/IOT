@@ -1,0 +1,69 @@
+const int soundSensorPin = A0; 
+const int triggerPin = 8;
+const int echoPin = 13;
+const int ultrasonicLed = 6;
+const int soundLed = 3; // Adding another LED for sound detection
+const int irpin = 7;
+const int irled = 4;
+
+long duration = 0;
+int cm = 0;
+int inch = 0;
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(triggerPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+  pinMode(ultrasonicLed, OUTPUT);
+  pinMode(soundLed, OUTPUT); // Set the sound LED pin as output
+  pinMode(irpin, INPUT);
+  pinMode(irled, OUTPUT);
+}
+
+void loop() {
+  // Ultrasonic sensor code
+  digitalWrite(triggerPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(triggerPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(triggerPin, LOW);
+  duration = pulseIn(echoPin, HIGH);
+  cm = duration * 0.034 / 2;
+  inch = duration * 0.0133 / 2;
+
+  // If object detected within 20 inches, turn on ultrasonic LED
+  if (inch < 5) {
+    digitalWrite(ultrasonicLed, 0);
+  } else {
+    digitalWrite(ultrasonicLed, 1);
+  }
+
+  // Sound sensor code
+  int soundLevel = analogRead(soundSensorPin);
+  
+  // If sound level above threshold, turn on sound LED
+  if (soundLevel > 700) { // Adjust threshold as needed
+    digitalWrite(soundLed, HIGH);
+  } else {
+    digitalWrite(soundLed, LOW);
+  }
+
+  // IR sensor code
+  if (digitalRead(irpin) == LOW) {
+    digitalWrite(irled, HIGH);
+  } else {
+    digitalWrite(irled, LOW);
+  }
+
+  // Printing values to serial monitor
+  if (inch < 100) {
+    Serial.print("Ultrasonic Inches: ");
+    Serial.println(inch);
+    Serial.print("Ultrasonic Cm: ");
+    Serial.println(cm);
+    Serial.print("Sound Level: ");
+    Serial.println(soundLevel);
+  }
+  
+  delay(600);
+}
